@@ -24,25 +24,12 @@ public class SpaceCollectionManager : Singleton<SpaceCollectionManager>
 
         foreach (GameObject spacePrefab in spaceObjectPrefabs)
         {
-            Placeable placeable = spacePrefab.GetComponent<Placeable>();
-            if (placeable.PlacementSurface == PlacementSurfaces.Horizontal)
-            {
-                horizontalObjects.Add(spacePrefab);
-            }
-            else
-            {
-                verticalObjects.Add(spacePrefab);
-            }
+                horizontalObjects.Add(spacePrefab);   
         }
 
         if (horizontalObjects.Count > 0)
         {
             CreateSpaceObjects(horizontalObjects, horizontalSurfaces, PlacementSurfaces.Horizontal);
-        }
-
-        if (verticalObjects.Count > 0)
-        {
-            CreateSpaceObjects(verticalObjects, verticalSurfaces, PlacementSurfaces.Vertical);
         }
     }
 
@@ -77,14 +64,9 @@ public class SpaceCollectionManager : Singleton<SpaceCollectionManager>
             int index = -1;
             Collider collider = item.GetComponent<Collider>();
 
-            if (surfaceType == PlacementSurfaces.Vertical)
-            {
-                index = FindNearestPlane(surfaces, collider.bounds.size, UsedPlanes, true);
-            }
-            else
-            {
-                index = FindNearestPlane(surfaces, collider.bounds.size, UsedPlanes, false);
-            }
+           
+            index = FindNearestPlane(surfaces, collider.bounds.size, UsedPlanes, false);
+            
 
             // If we can't find a good plane we will put the object floating in space.
             Vector3 position = Camera.main.transform.position + Camera.main.transform.forward * 2.0f + Camera.main.transform.right * (Random.value - 1.0f) * 2.0f;
@@ -100,18 +82,12 @@ public class SpaceCollectionManager : Singleton<SpaceCollectionManager>
                 position = AdjustPositionWithSpatialMap(position, plane.SurfaceNormal);
                 rotation = Camera.main.transform.localRotation;
 
-                if (surfaceType == PlacementSurfaces.Vertical)
-                {
-                    // Vertical objects should face out from the wall.
-                    rotation = Quaternion.LookRotation(surface.transform.forward, Vector3.up);
-                }
-                else
-                {
+                
                     // Horizontal objects should face the user.
                     rotation = Quaternion.LookRotation(Camera.main.transform.position);
                     rotation.x = 0f;
                     rotation.z = 0f;
-                }
+                
             }
 
             //Vector3 finalPosition = AdjustPositionWithSpatialMap(position, surfaceType);
@@ -140,12 +116,8 @@ public class SpaceCollectionManager : Singleton<SpaceCollectionManager>
             }
 
             Collider collider = planes[i].GetComponent<Collider>();
-            if (isVertical && (collider.bounds.size.x < minSize.x || collider.bounds.size.y < minSize.y))
-            {
-                // This plane is too small to fit our vertical object.
-                continue;
-            }
-            else if(!isVertical && (collider.bounds.size.x < minSize.x || collider.bounds.size.y < minSize.y))
+            
+            if(!isVertical && (collider.bounds.size.x < minSize.x || collider.bounds.size.y < minSize.y))
             {
                 // This plane is too small to fit our horizontal object.
                 continue;
